@@ -1,0 +1,237 @@
+/*
+    Dumb Drums Sequencer: 
+    
+*/
+
+var numberOfTracks = 12;
+var numberOfSteps = 16;
+var numberOfParams = 3;
+var numberOfPatterns;	//This is set Automatically...
+
+var voiceNames=["Kick", "Snare", "Closed Hat", "Open Hat",
+"Tom 1", "Tom 2", "Tom3", "Floor Tom",
+"Crash 1", "Crash 2", "China", "Ride"];
+//define default pattern notes
+var defaultNotes = [36, 38, 42, 46,   //bass, snare, Closed Hat, Open Hat
+				48, 47, 45, 41,  	//Toms
+				49, 57, 52, 51];			///Crash, Crash, China, Ride
+
+
+
+//define default pattern values
+var patternMatrix = [
+[	//All Off
+    [ 0,  0,  0, 0,		0, 0,  0,  0,		0,  0,  0,  0,	0,  0, 0,  0],//Bass
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0,    0, 0,  0, 0], //Snare
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0, 	0, 0,  0, 0], //OPen Hat
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0, 	0, 0,  0, 0], //Closed Hat
+	[   0,  0,  0, 0,		0,  0,  0, 0,	0,  0,  0, 0,    0,  0,  0, 0],//Tom
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],//Tom
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],//Tom
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],//Tom
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0, 	0, 0,  0, 0],//Crash
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],//Crash
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],//China
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0,	0, 0,  0, 0]//Ride
+]
+,
+[	//Basic Beat
+    [ 100,  0,  0, 0,		100, 15,  0,  0,		100,  0,  0,  0, 100,  0, 50,  0],
+    [   0,  0,  0, 0,		100,  0,  0, 25,		0, 25,  0,  0, 100, 15,  0, 50],
+    [  25, 50,  0, 0,		25, 50,  0, 25,		25, 50,  0,  0,  25, 50,  0,  0],
+    [   0,  0, 75, 0,		0,  0, 75,  0,		0,  0, 75, 25,   0,  0, 75,  0],
+	[   0,  0,  0, 0,		0,  0,  0, 0,	0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   100,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   100,  0,  0, 0,	100,  0,  0, 0,		100,  0,  0, 0,    100,  0,  0, 0]
+],
+
+[	//Hi Hat Only
+    [ 0,  0,  0, 0,		0, 0,  0,  0,		0,  0,  0,  0, 0,  0, 0,  0],
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0, 0, 0,  0, 0],
+    [  25, 50,  0, 0,		25, 50,  0, 25,		25, 50,  0,  0,  25, 50,  0,  0],
+    [   0,  0, 75, 0,		0,  0, 75,  0,		0,  0, 75, 25,   0,  0, 75,  0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,	0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],
+],
+
+[	//Tom FIll
+    [ 0,  0,  0, 0,		0, 0,  0,  0,		0,  0,  0,  0,	0,  0, 0,  0],//Bass
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0,    0, 0,  0, 0], //Snare
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0, 	0, 0,  0, 0], //OPen Hat
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0, 	0, 0,  0, 0], //Closed Hat
+	[   100, 80, 80,80,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],//Tom
+	[   0,  0,  0, 0,	100, 80, 80,80,		0,  0,  0, 0,    0,  0,  0, 0],//Tom
+	[   0,  0,  0, 0,	0,  0,  0, 0,		100, 80, 80,80,    0,  0,  0, 0],//Tom
+	[   0,  0,  0, 0,		0,  0,  0, 0,	0,  0,  0, 0,    100, 80, 80, 0,],//Tom
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0, 	0, 0,  0, 0],//Crash
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],//Crash
+	[   0,  0,  0, 0,	0,  0,  0, 0,		0,  0,  0, 0,    0,  0,  0, 0],//China
+    [   0,  0,  0, 0,		0,  0,  0, 0,		0, 0,  0,  0,	0, 0,  0, 0]//Ride
+],
+];
+
+
+//needed to call GetTimingInfo()
+var NeedsTimingInfo = true;
+ResetParameterDefaults = true;
+
+var currentPattern=1;
+
+function ProcessMIDI() {
+
+    var musicInfo = GetTimingInfo();
+    
+	  if (musicInfo.playing) {
+		
+        // calculate beat to schedule
+		    var division = 4;
+		    var lookAheadEnd = musicInfo.blockEndBeat;
+		    var beatToSchedule = Math.ceil(musicInfo.blockStartBeat * division) / division;
+		
+		    // when cycling, find the beats that wrap around the last buffer
+		    if (musicInfo.cycling && lookAheadEnd >= musicInfo.rightCycleBeat) {
+		    
+			      if (lookAheadEnd >= musicInfo.rightCycleBeat) {
+				        var cycleBeats = musicInfo.rightCycleBeat - musicInfo.leftCycleBeat;
+				        var cycleEnd = lookAheadEnd - cycleBeats;
+			      }
+		    }
+		    
+			var swing = GetParameter("Swing");
+		    	var isSwinging = false;
+		    	
+		    	//only calculate swing if it is active
+				if (swing > 50) {
+						var divisionPercent = 1 / division;
+						var swingPercent = (swing * 2) / 100;
+						
+						//calculate swing offset
+						var swingOffset = (divisionPercent * swingPercent) - divisionPercent;
+
+						if ((beatToSchedule / divisionPercent) % 2 === 0) {
+								isSwinging = false;
+						} else {
+								isSwinging = true;
+						}
+				}		
+				
+        // loop through the beats that fall within this buffer
+        while ((beatToSchedule >= musicInfo.blockStartBeat && beatToSchedule < lookAheadEnd)
+        // including beats that wrap around the cycle point
+        || (musicInfo.cycling && beatToSchedule < cycleEnd))
+        {
+            // adjust for cycle
+            if (musicInfo.cycling && beatToSchedule >= musicInfo.rightCycleBeat) {
+                beatToSchedule -= cycleBeats;
+            }
+			     
+            var currentStep = ((beatToSchedule * 4) - 4) % numberOfSteps;
+            var syncMode=GetParameter("Sync");
+            if(syncMode==0)
+           	 	{
+           		 currentPattern=GetParameter("Pattern");
+           		 }
+             if(syncMode==1 && currentStep%4==0)
+           	 	{
+           		 currentPattern=GetParameter("Pattern");
+           		 }
+            if(syncMode==2 && currentStep==0)
+           	 	{
+           		 currentPattern=GetParameter("Pattern");
+           		 }
+            //for each track, get the current step and check if it should be triggered
+            for(var currentTrack = 0; currentTrack < numberOfTracks; currentTrack++) {
+                     
+
+             var velocity = patternMatrix[currentPattern][currentTrack ][currentStep ];
+                               
+                if(velocity>0 && GetParameter(currentTrack+numberOfParams) == 0) {
+                
+                    var on = new NoteOn;
+                    on.pitch = defaultNotes[currentTrack];
+                 
+                    var velocityLevel;
+                    
+                    //Velocity Follows: Step Level
+                    velocityLevel = Math.ceil(velocity * 1.27);
+
+                             
+                    if (isSwinging) {
+                    		beatToSchedule += swingOffset;
+                    }
+                                        
+                    on.velocity = velocityLevel;
+                    on.sendAtBeat(beatToSchedule);
+                
+                    var off = new NoteOff(on);
+                    off.sendAtBeat(beatToSchedule+ 0.1);      
+                }
+            }
+                       			
+			      // advance to next beat
+			      beatToSchedule += 0.001;
+			      beatToSchedule = Math.ceil(beatToSchedule * division) / division;
+		    }
+	  }
+}
+
+
+//define the UI -----------------------------------------------------------------
+numberOfPatterns=patternMatrix.length;
+
+//initialize PluginParameters
+var PluginParameters = [];
+
+
+//add a global Swing control
+PluginParameters.push({
+		name:"Pattern",
+		type:"linear",
+		minValue:0,
+		maxValue:numberOfPatterns-1,
+		numberOfSteps:numberOfPatterns-1,
+		defaultValue:1,
+		unit:""
+});
+
+    PluginParameters.push({name:"Sync" , 
+                           type:"menu", valueStrings:["Off", "Beat", "Bar"],
+                           numberOfSteps:3,
+                           minValue:0,
+                           maxValue:3,
+                           defaultValue:0,});
+
+PluginParameters.push({
+		name:"Swing",
+		type:"linear",
+		minValue:50,
+		maxValue:99,
+		numberOfSteps:49,
+		defaultValue:50,
+		unit:"%"
+});
+
+//create all controls for each track
+for(var trackNum = 1; trackNum <= numberOfTracks; trackNum++) {
+
+    
+    PluginParameters.push({name:voiceNames[trackNum-1] , 
+                           type:"menu", valueStrings:["On", "Off"],
+                           numberOfSteps:2,
+                           minValue:0,
+                           maxValue:1,
+                           defaultValue:0,});
+    
+
+ };
